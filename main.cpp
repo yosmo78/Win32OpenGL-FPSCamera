@@ -840,6 +840,13 @@ void CenterCursor( HWND Window )
 
 void Pause()
 {
+	isPaused = 1;
+    ClipCursor( NULL );
+    ShowCursor( TRUE );
+}
+
+void TogglePause()
+{
 	isPaused = isPaused ^ 1;
     if( isPaused )
     {
@@ -946,6 +953,27 @@ Win32MainWindowCallback(
         PAINTSTRUCT Paint;
         HDC DeviceContext = BeginPaint(Window, &Paint); //will fill out struct with information on where to paint
         EndPaint(Window, &Paint); //closes paint area
+    } break;
+
+
+    case WM_ACTIVATE:
+    {
+    	switch(WParam)
+    	{
+    		case WA_ACTIVE:
+    		case WA_CLICKACTIVE:
+    		{
+
+    		} break;
+    		case WA_INACTIVE:
+    		{
+    			Pause();
+    		} break;
+    		default:
+    		{
+    			//error
+    		}
+    	}
     } break;
 
     default:
@@ -1163,7 +1191,7 @@ int APIENTRY WinMain(
                                   			{
                                   				if(WasDown != 1 && WasDown != IsDown)
                                   				{
-                                  					Pause();
+                                  					TogglePause();
                                   				}
                                   				break;
                                   			}
@@ -1265,7 +1293,6 @@ int APIENTRY WinMain(
                                 rotVert = clamp(rotVert + deltaTime*mouseSensitivity*frameRot.y, -90.0f, 90.0f);
                             }
 
-                            printf("%f\n", deltaTime);
                             drawScene(shaderProgram, (1-isPaused)*deltaTime );
 
                             if( isPaused )
