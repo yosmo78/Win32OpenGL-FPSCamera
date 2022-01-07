@@ -1,4 +1,4 @@
-# Win32OpenGLNoExtraLibStarter
+# Win32 OpenGL FPS Camera
 Basic FPS camera starter code for compiling an Win32/OpenGL Shader environment, just installing visual studio
 
 Steps to compile and run:
