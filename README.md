@@ -10,6 +10,7 @@ Steps to compile and run:
 
 Controls
 - `WSAD` or `ArrowKeys` to move
+-  `Space` and `shift` to move up and down
 - `Mouse` to look around
 - `Esc` to pause/unpause
 - `F` to go in and out of fullscreen
