@@ -9,7 +9,7 @@ Steps to compile and run:
 5) run: `.\FPSCameraBasic.exe`
 
 Controls
-- WSAD or ArrowKeys to move
-- Mouse to look around
-- Esc to pause/unpause
-- F to go in and out of fullscreen
+- `WSAD` or `ArrowKeys` to move
+- `Mouse` to look around
+- `Esc` to pause/unpause
+- `F` to go in and out of fullscreen
