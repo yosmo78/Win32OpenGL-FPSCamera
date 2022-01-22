@@ -643,10 +643,10 @@ void InitModelVAOs()
 	float planeVertices[] =
 	{
 		// positions              // vertex norms    // vertex colors
-		 100.0f,  -1.0f,  100.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f,
-		 100.0f,  -1.0f, -100.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f,
-		-100.0f,  -1.0f,  100.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f,
-		-100.0f,  -1.0f, -100.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f
+		 1000.0f,  -1.0f,  1000.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f,
+		 1000.0f,  -1.0f, -1000.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f,
+		-1000.0f,  -1.0f,  1000.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f,
+		-1000.0f,  -1.0f, -1000.0f, 0.0f,  1.0f, 0.0f, 0.5882f, 0.2941f, 0.0f, 1.0f
 	};
 
 	unsigned int planeIndices[] = 
@@ -795,7 +795,7 @@ void drawScene(GLuint shaderProgram, f32 deltaTime )
     InitViewMat4ByQuatf( &viewMatrix, rotHor, rotVert, &position );
 
     Mat4f projectMatrix;
-    InitPerspectiveProjectionMat4f(&projectMatrix, screen_width, screen_height, hFov, vFov, 0.0001f, 10000.0f );
+    InitPerspectiveProjectionMat4f(&projectMatrix, screen_width, screen_height, hFov, vFov, 0.04f, 8000.0f );
     Mat4f viewProjMatrix;
     Mat4fMult(&viewMatrix, &projectMatrix, &viewProjMatrix);
 	glUniformMatrix4fv(projViewUniformLoc, 1, GL_FALSE,(const GLfloat *)viewProjMatrix.m);
