@@ -840,9 +840,12 @@ void CenterCursor( HWND Window )
 
 void Pause()
 {
-	isPaused = 1;
-    ClipCursor( NULL );
-    ShowCursor( TRUE );
+	if( !isPaused )
+	{
+		isPaused = 1;
+    	ClipCursor( NULL );
+    	ShowCursor( TRUE );
+	}
 }
 
 void TogglePause()
