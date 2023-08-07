@@ -32,6 +32,10 @@ u8 Running;
 u8 isPaused;
 u8 isFullscreen;
 
+//Timing
+int64_t PerfCountFrequency;
+LARGE_INTEGER LastCounter;
+
 //movement
 f32 speed = 10.0f; //movement speed
 f32 mouseSensitivity = 5.f;
@@ -40,9 +44,11 @@ f32 mouseSensitivity = 5.f;
 #define NUM_MODELS 2
 GLuint shaderProgram = 0;
 GLuint modelVAOs[NUM_MODELS];
+HGLRC ourOpenGLRC = NULL;
 
 //win32 screen
 HDC hDC;
+HWND WindowHandle;
 RECT winRect;
 RECT nonFullScreenRect;
 RECT snapPosRect;
@@ -931,6 +937,23 @@ Win32MainWindowCallback(
     	screen_height = HIWORD(LParam);
         glViewport(0, 0, screen_width, screen_height); //needed for window resizing
         CenterCursor( Window );
+    
+        LARGE_INTEGER EndCounter;
+        QueryPerformanceCounter(&EndCounter);
+        //Display the value here
+        s64 CounterElapsed = EndCounter.QuadPart - LastCounter.QuadPart;
+        f32 deltaTime = (CounterElapsed / (f32)PerfCountFrequency);
+        f64 MSPerFrame = (f64) ((1000.0f*CounterElapsed)/ (f64)PerfCountFrequency);
+        f64 FPS = PerfCountFrequency/(f64)CounterElapsed;
+        LastCounter = EndCounter;
+
+        if( ourOpenGLRC )
+        {
+            char buf[55];
+            sprintf(&buf[0],"FPS Camera Basic: fps %f",FPS);
+            SetWindowTextA( WindowHandle, &buf[0]);
+        	drawScene(shaderProgram, (1-isPaused)*deltaTime );
+    	}
     }break;
 
     case WM_MOVE:
@@ -1015,7 +1038,7 @@ int APIENTRY WinMain(
     WindowClass.hIconSm = NULL; //can also do default Icon here? will NULL be default automatically?
     if (RegisterClassEx(&WindowClass))
     {
-        HWND WindowHandle = CreateWindowEx(0, WindowClass.lpszClassName, "FPS Camera Basic",
+        WindowHandle = CreateWindowEx(0, WindowClass.lpszClassName, "FPS Camera Basic",
             WS_OVERLAPPEDWINDOW | WS_VISIBLE, 
             CW_USEDEFAULT, CW_USEDEFAULT, screen_width, screen_height, //if fullscreen get monitor width and height
             0, 0, WindowClass.hInstance, NULL);
@@ -1046,7 +1069,7 @@ int APIENTRY WinMain(
             {
                 if (SetPixelFormat(hDC, letWindowsChooseThisPixelFormat, &pfd))
                 { // Try to set that pixel format
-                    HGLRC ourOpenGLRC = wglCreateContext(hDC);
+                    ourOpenGLRC = wglCreateContext(hDC);
                     if (ourOpenGLRC)
                     {
                         wglMakeCurrent(hDC, ourOpenGLRC); // Make our render context current
@@ -1065,8 +1088,7 @@ int APIENTRY WinMain(
 
                         LARGE_INTEGER PerfCountFrequencyResult;
     					QueryPerformanceFrequency(&PerfCountFrequencyResult);
-    					int64_t PerfCountFrequency = PerfCountFrequencyResult.QuadPart;
-    					LARGE_INTEGER LastCounter;
+    					PerfCountFrequency = PerfCountFrequencyResult.QuadPart;
                   		QueryPerformanceCounter(&LastCounter);
                         Running = 1;
                         isPaused = 0;
@@ -1090,21 +1112,6 @@ int APIENTRY WinMain(
 
                         while (Running)
                         {
-                        	uint64_t EndCycleCount = __rdtsc();
-                      
-                      		LARGE_INTEGER EndCounter;
-                      		QueryPerformanceCounter(&EndCounter);
-                  
-                     		//Display the value here
-                     		s64 CounterElapsed = EndCounter.QuadPart - LastCounter.QuadPart;
-                     		f32 deltaTime = (CounterElapsed / (f32)PerfCountFrequency);
-                     		f64 MSPerFrame = (f64) ((1000.0f*CounterElapsed)/ (f64)PerfCountFrequency);
-                     		f64 FPS = PerfCountFrequency/(f64)CounterElapsed;
-                     		LastCounter = EndCounter;
-                     		
-                     		char buf[55];
-                     		sprintf(&buf[0],"FPS Camera Basic: fps %f",FPS);
-                     		SetWindowTextA( WindowHandle, &buf[0]);
 							Vec2f frameRot = { 0, 0 };
 
 
@@ -1249,6 +1256,22 @@ int APIENTRY WinMain(
                             	}
                             }
 
+                        	uint64_t EndCycleCount = __rdtsc();
+                      
+                      		LARGE_INTEGER EndCounter;
+                      		QueryPerformanceCounter(&EndCounter);
+                  
+                     		//Display the value here
+                     		s64 CounterElapsed = EndCounter.QuadPart - LastCounter.QuadPart;
+                     		f32 deltaTime = (CounterElapsed / (f32)PerfCountFrequency);
+                     		f64 MSPerFrame = (f64) ((1000.0f*CounterElapsed)/ (f64)PerfCountFrequency);
+                     		f64 FPS = PerfCountFrequency/(f64)CounterElapsed;
+                     		LastCounter = EndCounter;
+                     		
+                     		char buf[55];
+                     		sprintf(&buf[0],"FPS Camera Basic: fps %f",FPS);
+                     		SetWindowTextA( WindowHandle, &buf[0]);
+
                             if(!isPaused)
                             {
                      			Vec2f forwardOrientation = { sinf(rotHor*PI_F/180.0f), cosf(rotHor*PI_F/180.0f) };
@@ -1292,12 +1315,11 @@ int APIENTRY WinMain(
                                 Vec3fScale(&positionChange,speed*deltaTime,&val);
                             	Vec3fAdd( &oldPos, &val, &position );
 
-                                rotHor  = fmodf(rotHor  + deltaTime*mouseSensitivity*frameRot.x, 360.0f ); //make sure this is right
+                                rotHor  = fmodf(rotHor  + deltaTime*mouseSensitivity*frameRot.x, 360.0f );
                                 rotVert = clamp(rotVert + deltaTime*mouseSensitivity*frameRot.y, -90.0f, 90.0f);
                             }
 
                             drawScene(shaderProgram, (1-isPaused)*deltaTime );
-
                             if( isPaused )
                             {
                             	//draw pause UI
